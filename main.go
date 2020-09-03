@@ -29,18 +29,30 @@ package main
 import (
 	"fyne.io/fyne/app"
 	"fyne.io/fyne/widget"
+	"log"
+	"net"
 )
 
 func main() {
 	a := app.New()
-	w := a.NewWindow("Hello")
+	w := a.NewWindow("Nameserver Lookup")
 
-	hello := widget.NewLabel("Hello Fyne!")
+	entry := widget.NewEntry()
+	entry.SetText("Enter URL and click `Let's GO`")
+
 	w.SetContent(widget.NewVBox(
-		hello,
-		widget.NewButton("Hi!", func() {
-			hello.SetText("Welcome :)")
+		entry,
+		widget.NewButton("Let's GO", func() {
+			nameservers, err := net.LookupNS(entry.Text)
+			if err != nil {
+				log.Fatal(err)
+			}
+			for _, nameserver := range nameservers {
+				entry.SetText(nameserver.Host)
+			}
+
 		}),
 	))
+
 	w.ShowAndRun()
 }
