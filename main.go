@@ -27,32 +27,37 @@
 package main
 
 import (
+	"net"
 	"fyne.io/fyne/app"
 	"fyne.io/fyne/widget"
-	"log"
-	"net"
 )
 
 func main() {
-	a := app.New()
-	w := a.NewWindow("Nameserver Lookup")
+	
+	// Create app and scenes
+	application := app.New()
+	mainWindow := application.NewWindow("Nameserver Lookup")
 
-	entry := widget.NewEntry()
-	entry.SetText("Enter URL and click `Let's GO`")
+	// Create items
+	status := widget.NewLabel("")
+	textfield := widget.NewEntry()
+	textfield.SetText("Enter domain..")
 
-	w.SetContent(widget.NewVBox(
-		entry,
-		widget.NewButton("Let's GO", func() {
-			nameservers, err := net.LookupNS(entry.Text)
+	// Add items to window
+	mainWindow.SetContent(widget.NewVBox(
+		status,textfield,
+		widget.NewButton("Lookup", func() {
+			nameservers, err := net.LookupNS(textfield.Text)
 			if err != nil {
-				log.Fatal(err)
+				status.SetText("No such host!")
 			}
 			for _, nameserver := range nameservers {
-				entry.SetText(nameserver.Host)
+				textfield.SetText(nameserver.Host)
+				status.Text = "There you go!"
 			}
-
 		}),
 	))
 
-	w.ShowAndRun()
+	// Execute
+	mainWindow.ShowAndRun()
 }
