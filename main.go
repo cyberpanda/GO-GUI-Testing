@@ -33,9 +33,11 @@ import (
 )
 
 func main() {
-	
-	// Create app and scenes
+
+	// Create application
 	application := app.New()
+
+	// Create scenes
 	mainWindow := application.NewWindow("Nameserver Lookup")
 
 	// Create items
@@ -43,21 +45,23 @@ func main() {
 	textfield := widget.NewEntry()
 	textfield.SetText("Enter domain..")
 
-	// Add items to window
+	// Example for a button with some logic
+	lookupBtn := widget.NewButton("Lookup", func() {
+		nameservers, err := net.LookupNS(textfield.Text)
+		if err != nil {
+			status.SetText("No such host!")
+		}
+		for _, nameserver := range nameservers {
+			textfield.SetText(nameserver.Host)
+			status.Text = "There you go!"
+		}
+	})
+
+	// Add items to scenes
 	mainWindow.SetContent(widget.NewVBox(
-		status,textfield,
-		widget.NewButton("Lookup", func() {
-			nameservers, err := net.LookupNS(textfield.Text)
-			if err != nil {
-				status.SetText("No such host!")
-			}
-			for _, nameserver := range nameservers {
-				textfield.SetText(nameserver.Host)
-				status.Text = "There you go!"
-			}
-		}),
+		status,textfield,lookupBtn,
 	))
 
-	// Execute
+	// Show and or execute the scenes
 	mainWindow.ShowAndRun()
 }
